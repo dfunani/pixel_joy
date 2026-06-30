@@ -1,26 +1,174 @@
 @import "tailwindcss";
 
+/*
+  PixelJoy design system.
+  A dark arcade-cabinet aesthetic: deep space-black, neon accents, scanlines.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #07060f;
+  --foreground: #f4f1ff;
+
+  /* Neon palette — used across the studio and games */
+  --pj-pink: #ff2e88;
+  --pj-cyan: #22e0ff;
+  --pj-yellow: #ffd23f;
+  --pj-green: #3df58a;
+  --pj-purple: #9d5cff;
+  --pj-blue: #4d7cff;
+
+  /* Surfaces */
+  --pj-surface: #110e22;
+  --pj-surface-2: #1a1633;
+  --pj-border: #2c2752;
+  --pj-muted: #9a92c7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-pink: var(--pj-pink);
+  --color-cyan: var(--pj-cyan);
+  --color-yellow: var(--pj-yellow);
+  --color-green: var(--pj-green);
+  --color-purple: var(--pj-purple);
+  --color-blue: var(--pj-blue);
+
+  --color-surface: var(--pj-surface);
+  --color-surface-2: var(--pj-surface-2);
+  --color-pjborder: var(--pj-border);
+  --color-muted: var(--pj-muted);
+
+  --font-sans: var(--font-geist-sans);
+  --font-pixel: var(--font-pixel);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  /* Layered arcade ambience: radial neon glows over a subtle grid */
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      rgba(157, 92, 255, 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 100% 0%,
+      rgba(34, 224, 255, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 0% 100%,
+      rgba(255, 46, 136, 0.1),
+      transparent 60%
+    );
+  background-attachment: fixed;
+}
+
+/* Faint pixel-grid texture overlay for the whole page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(157, 92, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(157, 92, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black, transparent 90%);
+}
+
+.font-pixel {
+  font-family: var(--font-pixel), monospace;
+}
+
+/* Neon text glow utility */
+.neon {
+  text-shadow:
+    0 0 6px currentColor,
+    0 0 18px currentColor;
+}
+
+/* CRT scanline overlay — applied to game screens */
+.scanlines {
+  position: relative;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.18) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  mix-blend-mode: multiply;
+  border-radius: inherit;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--pj-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pj-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pj-purple);
+}
+
+/*
+  CSS-driven entrance animations.
+
+  These deliberately replace JS/hydration-gated reveals: a CSS animation runs
+  the moment the browser paints, with no dependency on React hydrating. With
+  `animation-fill-mode: both` the element settles fully visible, so the page is
+  never stuck blank if JS is slow, fails, or is disabled. Stagger with an inline
+  `animation-delay`.
+*/
+@keyframes pj-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pj-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pj-rise {
+  animation: pj-rise 0.5s ease both;
+}
+.pj-fade {
+  animation: pj-fade 0.6s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
